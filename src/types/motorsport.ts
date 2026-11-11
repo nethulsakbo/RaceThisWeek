@@ -12,6 +12,7 @@ export interface SeriesMeta {
   id: MotorsportSeriesId;
   name: string;
   shortName: string;
+  abbreviation?: string;
   category: 'Open Wheel' | 'Motorcycle' | 'Stock Car' | 'Endurance' | 'Rally';
   color: string; // Brand accent hex
   badgeBg: string;

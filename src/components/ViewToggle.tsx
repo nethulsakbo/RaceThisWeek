@@ -37,14 +37,16 @@ export function ViewToggle({ currentView, onViewChange, thisWeekCount }: ViewTog
   ];
 
   return (
-    <div className="flex bg-zinc-100 dark:bg-zinc-900/90 p-1 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 max-w-fit">
+    <div role="tablist" aria-label="View selection" className="flex bg-zinc-100 dark:bg-zinc-900/90 p-1 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 max-w-fit">
       {tabs.map((tab) => {
         const isActive = currentView === tab.id;
         return (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={isActive}
             onClick={() => onViewChange(tab.id)}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500 focus-visible:outline-none ${
               isActive
                 ? "bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-sm border border-zinc-200/50 dark:border-zinc-700/50"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
@@ -63,4 +65,3 @@ export function ViewToggle({ currentView, onViewChange, thisWeekCount }: ViewTog
     </div>
   );
 }
-

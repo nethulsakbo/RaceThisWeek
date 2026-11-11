@@ -69,6 +69,13 @@ export function formatDayAndDate(isoString: string): string {
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
+export function isEventCurrentlyLive(
+  event: { sessions: { startTime: string; endTime?: string; completed?: boolean }[] },
+  now: Date
+): boolean {
+  return event.sessions.some((s) => isSessionLive(s as SessionItem, now));
+}
+
 export function getCountdown(targetIso: string, now: Date = new Date()): { days: number; hours: number; minutes: number; isPast: boolean } {
   const diff = new Date(targetIso).getTime() - now.getTime();
   if (diff <= 0) {

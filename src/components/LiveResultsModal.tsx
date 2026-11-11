@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { X, Trophy, Timer, Award } from "lucide-react";
 import { RaceEvent, SessionItem } from "@/types/motorsport";
 import { MOTORSPORT_SERIES } from "@/data/series";
@@ -12,14 +12,40 @@ interface LiveResultsModalProps {
 }
 
 export function LiveResultsModal({ event, session, onClose }: LiveResultsModalProps) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Focus close button on open
+  useEffect(() => {
+    closeRef.current?.focus();
+  }, []);
+
+  // Escape key handler + body scroll lock
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handler);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handler);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
+
   if (!event || !session) return null;
 
   const series = MOTORSPORT_SERIES[event.seriesId];
   const results = session.results || [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
         className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -37,7 +63,7 @@ export function LiveResultsModal({ event, session, onClose }: LiveResultsModalPr
                 Round {event.round} • {event.circuit}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+            <h3 id="modal-title" className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
               {session.name} Classification
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -46,6 +72,7 @@ export function LiveResultsModal({ event, session, onClose }: LiveResultsModalPr
           </div>
 
           <button
+            ref={closeRef}
             onClick={onClose}
             className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
@@ -72,7 +99,7 @@ export function LiveResultsModal({ event, session, onClose }: LiveResultsModalPr
                     const isPodium = res.position <= 3;
                     return (
                       <tr
-                        key={res.position}
+                        key={`${res.driver}-${res.position}`}
                         className={`hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors ${
                           res.position === 1 ? "bg-amber-500/5 font-semibold" : ""
                         }`}
@@ -137,7 +164,7 @@ export function LiveResultsModal({ event, session, onClose }: LiveResultsModalPr
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 flex items-center justify-between text-xs text-zinc-500">
           <div className="flex items-center space-x-2">
             <Trophy className="w-3.5 h-3.5 text-amber-500" />
-            <span>Official Timing & Scoring Feed</span>
+            <span>Official Timing &amp; Scoring Feed</span>
           </div>
           <button
             onClick={onClose}
@@ -150,4 +177,3 @@ export function LiveResultsModal({ event, session, onClose }: LiveResultsModalPr
     </div>
   );
 }
-

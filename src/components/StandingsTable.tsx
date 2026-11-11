@@ -59,14 +59,14 @@ export function StandingsTable({ standings }: StandingsTableProps) {
               className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm"
               style={{ backgroundColor: activeSeries.color }}
             >
-              {activeSeries.shortName.slice(0, 3)}
+              {(activeSeries as any).abbreviation ?? activeSeries.shortName.slice(0, 4)}
             </div>
             <div>
               <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
                 {activeSeries.name} Championship Standings
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                2026 World Championship • Updated after last round
+                2026 World Championship • {activeStandings?.updatedAt ? `Updated ${new Date(activeStandings.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : "Updated after last round"}
               </p>
             </div>
           </div>
@@ -200,4 +200,3 @@ export function StandingsTable({ standings }: StandingsTableProps) {
     </div>
   );
 }
-

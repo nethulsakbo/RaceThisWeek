@@ -423,9 +423,17 @@ export const ALL_RACE_EVENTS: RaceEvent[] = [
     countryCode: "US",
     startDate: "2026-01-16T14:00:00Z",
     endDate: "2026-01-18T22:00:00Z",
-    status: "upcoming",
+    status: "completed",
     sessions: [
-      { id: "imsa-roar-q", name: "Rolex 24 Qualifying", startTime: "2026-01-18T18:55:00Z" },
+      {
+        id: "imsa-roar-q",
+        name: "Rolex 24 Qualifying",
+        startTime: "2026-01-18T18:55:00Z",
+        completed: true,
+        results: [
+          { position: 1, driver: "Event Completed", team: "See official results at imsa.com", timeOrGap: "Official", points: 0 },
+        ],
+      },
     ],
   },
   {
@@ -442,11 +450,19 @@ export const ALL_RACE_EVENTS: RaceEvent[] = [
     countryCode: "US",
     startDate: "2026-03-01T15:00:00Z",
     endDate: "2026-03-01T20:30:00Z",
-    status: "upcoming",
+    status: "completed",
     sessions: [
-      { id: "indy-stp-fp1", name: "Practice 1", startTime: "2026-02-27T19:45:00Z" },
-      { id: "indy-stp-q", name: "Firestone Fast Six Qualifying", startTime: "2026-02-28T18:00:00Z" },
-      { id: "indy-stp-race", name: "Race (100 Laps)", startTime: "2026-03-01T17:30:00Z" },
+      { id: "indy-stp-fp1", name: "Practice 1", startTime: "2026-02-27T19:45:00Z", completed: true },
+      { id: "indy-stp-q", name: "Firestone Fast Six Qualifying", startTime: "2026-02-28T18:00:00Z", completed: true },
+      {
+        id: "indy-stp-race",
+        name: "Race (100 Laps)",
+        startTime: "2026-03-01T17:30:00Z",
+        completed: true,
+        results: [
+          { position: 1, driver: "Event Completed", team: "See official results at indycar.com", timeOrGap: "Official", points: 0 },
+        ],
+      },
     ],
   },
 ];

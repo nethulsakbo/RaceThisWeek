@@ -19,10 +19,25 @@ export function Header({ activeLiveCount }: HeaderProps) {
       setTimeZone("Local Time");
     }
 
-    // Default to dark mode for motorsport aesthetic
+    // Theme persistence: read from localStorage, fall back to prefers-color-scheme
     const root = document.documentElement;
-    if (!root.classList.contains("dark")) {
-      root.classList.add("dark");
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light') {
+      root.classList.remove('dark');
+      setIsDark(false);
+    } else if (stored === 'dark') {
+      root.classList.add('dark');
+      setIsDark(true);
+    } else {
+      // No stored preference — check system preference
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      if (prefersLight) {
+        root.classList.remove('dark');
+        setIsDark(false);
+      } else {
+        root.classList.add('dark');
+        setIsDark(true);
+      }
     }
   }, []);
 
@@ -31,9 +46,11 @@ export function Header({ activeLiveCount }: HeaderProps) {
     if (isDark) {
       root.classList.remove("dark");
       setIsDark(false);
+      localStorage.setItem('theme', 'light');
     } else {
       root.classList.add("dark");
       setIsDark(true);
+      localStorage.setItem('theme', 'dark');
     }
   };
 
@@ -55,7 +72,7 @@ export function Header({ activeLiveCount }: HeaderProps) {
               </span>
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">
-              All major motorsport events, schedules, live sessions & standings in one place
+              All major motorsport events, schedules, live sessions &amp; standings in one place
             </p>
           </div>
         </div>
@@ -67,12 +84,7 @@ export function Header({ activeLiveCount }: HeaderProps) {
               <Radio className="w-3.5 h-3.5" />
               <span>{activeLiveCount} Session Live</span>
             </div>
-          ) : (
-            <div className="hidden md:flex items-center space-x-1 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-800">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>All feeds synced</span>
-            </div>
-          )}
+          ) : null}
 
           <div className="hidden sm:flex items-center space-x-1.5 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-800">
             <Clock className="w-3.5 h-3.5" />
@@ -91,4 +103,3 @@ export function Header({ activeLiveCount }: HeaderProps) {
     </header>
   );
 }
-
