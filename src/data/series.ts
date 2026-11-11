@@ -1,4 +1,7 @@
 import { MotorsportSeriesId, SeriesMeta, SeriesStandings } from "@/types/motorsport";
+import f1StandingsData from "./f1-standings.json";
+
+const f1Standings: SeriesStandings = { ...f1StandingsData, seriesId: "f1" };
 
 export const MOTORSPORT_SERIES: Record<MotorsportSeriesId, SeriesMeta> = {
   f1: {
@@ -100,28 +103,7 @@ export const MOTORSPORT_SERIES: Record<MotorsportSeriesId, SeriesMeta> = {
 };
 
 export const STANDINGS_DATA: Record<MotorsportSeriesId, SeriesStandings> = {
-  f1: {
-    seriesId: "f1",
-    season: 2026,
-    updatedAt: "2026-11-09T20:00:00Z",
-    drivers: [
-      { position: 1, driver: "Max Verstappen", nationality: "NED", team: "Red Bull Racing", points: 393, wins: 8, podiums: 14 },
-      { position: 2, driver: "Lando Norris", nationality: "GBR", team: "McLaren", points: 331, wins: 3, podiums: 12 },
-      { position: 3, driver: "Charles Leclerc", nationality: "MON", team: "Ferrari", points: 307, wins: 3, podiums: 11 },
-      { position: 4, driver: "Oscar Piastri", nationality: "AUS", team: "McLaren", points: 262, wins: 2, podiums: 8 },
-      { position: 5, driver: "Carlos Sainz", nationality: "ESP", team: "Ferrari", points: 244, wins: 2, podiums: 7 },
-      { position: 6, driver: "George Russell", nationality: "GBR", team: "Mercedes", points: 192, wins: 1, podiums: 4 },
-      { position: 7, driver: "Lewis Hamilton", nationality: "GBR", team: "Mercedes", points: 190, wins: 2, podiums: 4 },
-      { position: 8, driver: "Sergio Pérez", nationality: "MEX", team: "Red Bull Racing", points: 151, wins: 0, podiums: 4 },
-    ],
-    teams: [
-      { position: 1, team: "McLaren Formula 1 Team", points: 593, wins: 5 },
-      { position: 2, team: "Scuderia Ferrari", points: 551, wins: 5 },
-      { position: 3, team: "Red Bull Racing", points: 544, wins: 8 },
-      { position: 4, team: "Mercedes-AMG Petronas F1 Team", points: 382, wins: 3 },
-      { position: 5, team: "Aston Martin Aramco", points: 86, wins: 0 },
-    ],
-  },
+  f1: f1Standings,
   motogp: {
     seriesId: "motogp",
     season: 2026,

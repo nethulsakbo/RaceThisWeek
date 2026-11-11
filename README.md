@@ -80,10 +80,13 @@ This project uses Next.js Static Export (`output: 'export'`) deployed automatica
    - Go to your repository on GitHub.
    - Click **Settings** → **Pages**.
    - Under **Build and deployment** → **Source**, select **GitHub Actions**.
+   - This must be configured before the first deployment. The workflow's default `GITHUB_TOKEN` cannot create a missing Pages site.
 
 3. **Automatic Deployment**:
    - The included workflow in `.github/workflows/deploy.yml` will automatically build the project with `npm ci && npm run build` and publish the generated `./out` directory to `https://<your-username>.github.io/RaceThisWeek/`.
-   - If the repository is not already configured, go to **Settings → Pages** and set **Source** to **GitHub Actions** before the first deployment.
+   - If the first deployment failed because no Pages site was found, enable Pages as described above, then rerun the workflow.
+   - The workflow also runs every 15 minutes to refresh Formula 1 driver and constructor standings from the [Jolpica F1 API](https://github.com/jolpica/jolpica-f1). This is a scheduled refresh, not live race timing; Jolpica updates standings after completed sessions. Other series' standings remain manually maintained.
+   - Jolpica F1 data is available for non-commercial use under CC BY-NC-SA 4.0; see its [terms](https://github.com/jolpica/jolpica-f1/blob/main/TERMS.md).
 
 *(Note: For project pages such as `https://username.github.io/RaceThisWeek/`, the workflow and `next.config.mjs` use the repository name automatically so the build publishes to the correct sub-path.)*
 

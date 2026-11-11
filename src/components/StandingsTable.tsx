@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Trophy, Users, Shield } from "lucide-react";
 import { MotorsportSeriesId, SeriesStandings } from "@/types/motorsport";
 import { MOTORSPORT_SERIES } from "@/data/series";
@@ -9,13 +9,89 @@ interface StandingsTableProps {
   standings: Record<MotorsportSeriesId, SeriesStandings>;
 }
 
+function isDriverStanding(value: unknown): value is SeriesStandings["drivers"][number] {
+  if (typeof value !== "object" || value === null) return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.position === "number" &&
+    typeof entry.driver === "string" &&
+    typeof entry.team === "string" &&
+    typeof entry.points === "number"
+  );
+}
+
+function isTeamStanding(value: unknown): value is NonNullable<SeriesStandings["teams"]>[number] {
+  if (typeof value !== "object" || value === null) return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.position === "number" &&
+    typeof entry.team === "string" &&
+    typeof entry.points === "number"
+  );
+}
+
+function isF1Standings(value: unknown): value is SeriesStandings {
+  if (typeof value !== "object" || value === null) return false;
+  const standings = value as Partial<SeriesStandings>;
+  return (
+    standings.seriesId === "f1" &&
+    typeof standings.season === "number" &&
+    typeof standings.updatedAt === "string" &&
+    Array.isArray(standings.drivers) &&
+    standings.drivers.every(isDriverStanding) &&
+    Array.isArray(standings.teams) &&
+    standings.teams.every(isTeamStanding)
+  );
+}
+
 export function StandingsTable({ standings }: StandingsTableProps) {
   const seriesIds = Object.keys(standings) as MotorsportSeriesId[];
   const [selectedSeries, setSelectedSeries] = useState<MotorsportSeriesId>("f1");
   const [viewType, setViewType] = useState<"drivers" | "teams">("drivers");
+  const [f1Standings, setF1Standings] = useState(standings.f1);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
 
   const activeSeries = MOTORSPORT_SERIES[selectedSeries];
-  const activeStandings = standings[selectedSeries];
+  const activeStandings = selectedSeries === "f1" ? f1Standings : standings[selectedSeries];
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const refreshStandings = async () => {
+      try {
+        const url = new URL("f1-standings.json", window.location.href);
+        url.searchParams.set("refresh", Date.now().toString());
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Standings refresh failed (${response.status})`);
+        }
+
+        const latestStandings: unknown = await response.json();
+        if (!isF1Standings(latestStandings)) {
+          throw new Error("Standings refresh returned invalid data");
+        }
+
+        if (!cancelled) {
+          setF1Standings(latestStandings);
+          setRefreshError(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setRefreshError(error instanceof Error ? error.message : "Unknown refresh error");
+        }
+      }
+    };
+
+    void refreshStandings();
+    const intervalId = window.setInterval(() => {
+      void refreshStandings();
+    }, 15 * 60 * 1000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -66,8 +142,27 @@ export function StandingsTable({ standings }: StandingsTableProps) {
                 {activeSeries.name} Championship Standings
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                2026 World Championship • {activeStandings?.updatedAt ? `Updated ${new Date(activeStandings.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : "Updated after last round"}
+                {activeStandings?.season} World Championship
+                {activeStandings?.updatedAt &&
+                  ` • ${selectedSeries === "f1" ? "Jolpica F1 data published" : "Data timestamp"} ${new Date(activeStandings.updatedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`}
               </p>
+              {selectedSeries === "f1" && (
+                <p className={`text-[11px] ${refreshError ? "text-red-500" : "text-zinc-500 dark:text-zinc-400"}`} aria-live="polite">
+                  {refreshError
+                    ? `Auto-refresh failed: ${refreshError}. Showing the last published standings.`
+                    : "Auto-refresh checks for updates every 15 minutes."}
+                </p>
+              )}
+              {selectedSeries === "f1" && (
+                <a
+                  href="https://api.jolpi.ca/ergast/f1/current/driverStandings/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-zinc-500 underline underline-offset-2 hover:text-zinc-700 dark:hover:text-zinc-300"
+                >
+                  F1 standings source: Jolpica F1
+                </a>
+              )}
             </div>
           </div>
 
