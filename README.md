@@ -83,8 +83,9 @@ This project uses Next.js Static Export (`output: 'export'`) deployed automatica
 
 3. **Automatic Deployment**:
    - The included workflow in `.github/workflows/deploy.yml` will automatically build the project with `npm ci && npm run build` and publish the generated `./out` directory to `https://<your-username>.github.io/RaceThisWeek/`.
+   - If the repository is not already configured, go to **Settings → Pages** and set **Source** to **GitHub Actions** before the first deployment.
 
-*(Note: If deploying to a project page sub-path like `https://username.github.io/RaceThisWeek/`, uncomment `basePath: '/RaceThisWeek'` in `next.config.mjs` before deploying.)*
+*(Note: For project pages such as `https://username.github.io/RaceThisWeek/`, the workflow and `next.config.mjs` use the repository name automatically so the build publishes to the correct sub-path.)*
 
 ---
 
