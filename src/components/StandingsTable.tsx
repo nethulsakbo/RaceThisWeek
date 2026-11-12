@@ -30,17 +30,23 @@ function isTeamStanding(value: unknown): value is NonNullable<SeriesStandings["t
   );
 }
 
-function isF1Standings(value: unknown): value is SeriesStandings {
+const LIVE_STANDINGS_SERIES = ["f1", "f2", "f3"] as const;
+type LiveStandingsSeriesId = (typeof LIVE_STANDINGS_SERIES)[number];
+
+function isSeriesStandings(
+  value: unknown,
+  seriesId: LiveStandingsSeriesId
+): value is SeriesStandings {
   if (typeof value !== "object" || value === null) return false;
   const standings = value as Partial<SeriesStandings>;
   return (
-    standings.seriesId === "f1" &&
+    standings.seriesId === seriesId &&
     typeof standings.season === "number" &&
     typeof standings.updatedAt === "string" &&
     Array.isArray(standings.drivers) &&
     standings.drivers.every(isDriverStanding) &&
-    Array.isArray(standings.teams) &&
-    standings.teams.every(isTeamStanding)
+    (standings.teams === undefined ||
+      (Array.isArray(standings.teams) && standings.teams.every(isTeamStanding)))
   );
 }
 
@@ -48,18 +54,25 @@ export function StandingsTable({ standings }: StandingsTableProps) {
   const seriesIds = Object.keys(standings) as MotorsportSeriesId[];
   const [selectedSeries, setSelectedSeries] = useState<MotorsportSeriesId>("f1");
   const [viewType, setViewType] = useState<"drivers" | "teams">("drivers");
-  const [f1Standings, setF1Standings] = useState(standings.f1);
-  const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [liveStandings, setLiveStandings] = useState<
+    Partial<Record<LiveStandingsSeriesId, SeriesStandings>>
+  >({});
+  const [refreshErrors, setRefreshErrors] = useState<
+    Partial<Record<LiveStandingsSeriesId, string>>
+  >({});
 
   const activeSeries = MOTORSPORT_SERIES[selectedSeries];
-  const activeStandings = selectedSeries === "f1" ? f1Standings : standings[selectedSeries];
+  const activeStandings =
+    liveStandings[selectedSeries as LiveStandingsSeriesId] ?? standings[selectedSeries];
+  const isLiveSeries = (LIVE_STANDINGS_SERIES as readonly string[]).includes(selectedSeries);
+  const refreshError = refreshErrors[selectedSeries as LiveStandingsSeriesId];
 
   useEffect(() => {
     let cancelled = false;
 
-    const refreshStandings = async () => {
+    const refreshStandings = async (seriesId: LiveStandingsSeriesId) => {
       try {
-        const url = new URL("f1-standings.json", window.location.href);
+        const url = new URL(`${seriesId}-standings.json`, window.location.href);
         url.searchParams.set("refresh", Date.now().toString());
         const response = await fetch(url, { cache: "no-store" });
         if (!response.ok) {
@@ -67,24 +80,31 @@ export function StandingsTable({ standings }: StandingsTableProps) {
         }
 
         const latestStandings: unknown = await response.json();
-        if (!isF1Standings(latestStandings)) {
+        if (!isSeriesStandings(latestStandings, seriesId)) {
           throw new Error("Standings refresh returned invalid data");
         }
 
         if (!cancelled) {
-          setF1Standings(latestStandings);
-          setRefreshError(null);
+          setLiveStandings((current) => ({ ...current, [seriesId]: latestStandings }));
+          setRefreshErrors((current) => ({ ...current, [seriesId]: undefined }));
         }
       } catch (error) {
         if (!cancelled) {
-          setRefreshError(error instanceof Error ? error.message : "Unknown refresh error");
+          setRefreshErrors((current) => ({
+            ...current,
+            [seriesId]: error instanceof Error ? error.message : "Unknown refresh error",
+          }));
         }
       }
     };
 
-    void refreshStandings();
+    const refreshAllStandings = () => {
+      LIVE_STANDINGS_SERIES.forEach((seriesId) => void refreshStandings(seriesId));
+    };
+
+    refreshAllStandings();
     const intervalId = window.setInterval(() => {
-      void refreshStandings();
+      refreshAllStandings();
     }, 15 * 60 * 1000);
 
     return () => {
@@ -146,21 +166,27 @@ export function StandingsTable({ standings }: StandingsTableProps) {
                 {activeStandings?.updatedAt &&
                   ` • ${selectedSeries === "f1" ? "Jolpica F1 data published" : "Data timestamp"} ${new Date(activeStandings.updatedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`}
               </p>
-              {selectedSeries === "f1" && (
+              {isLiveSeries && (
                 <p className={`text-[11px] ${refreshError ? "text-red-500" : "text-zinc-500 dark:text-zinc-400"}`} aria-live="polite">
                   {refreshError
                     ? `Auto-refresh failed: ${refreshError}. Showing the last published standings.`
-                    : "Auto-refresh checks for updates every 15 minutes."}
+                    : "Auto-refresh checks official standings for updates every 15 minutes."}
                 </p>
               )}
-              {selectedSeries === "f1" && (
+              {isLiveSeries && (
                 <a
-                  href="https://api.jolpi.ca/ergast/f1/current/driverStandings/"
+                  href={
+                    selectedSeries === "f1"
+                      ? "https://api.jolpi.ca/ergast/f1/current/driverStandings/"
+                      : `${activeSeries.officialSite}/en/standings/${activeStandings?.season}/drivers`
+                  }
                   target="_blank"
                   rel="noreferrer"
                   className="text-[11px] text-zinc-500 underline underline-offset-2 hover:text-zinc-700 dark:hover:text-zinc-300"
                 >
-                  F1 standings source: Jolpica F1
+                  {selectedSeries === "f1"
+                    ? "F1 standings source: Jolpica F1"
+                    : `${activeSeries.shortName} standings source: official championship`}
                 </a>
               )}
             </div>
@@ -188,7 +214,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
                 }`}
               >
                 <Users className="w-3.5 h-3.5" />
-                <span>Constructors</span>
+                <span>{selectedSeries === "f2" || selectedSeries === "f3" ? "Teams" : "Constructors"}</span>
               </button>
             </div>
           )}
@@ -244,7 +270,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
                       </td>
                       <td className="py-3.5 text-zinc-500 dark:text-zinc-400">{d.team}</td>
                       <td className="py-3.5 text-center font-mono text-zinc-600 dark:text-zinc-400">
-                        {d.wins ?? 0}
+                        {d.wins ?? "—"}
                       </td>
                       <td className="py-3.5 text-center font-mono text-zinc-600 dark:text-zinc-400">
                         {d.podiums ?? "—"}

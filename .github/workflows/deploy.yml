@@ -35,6 +35,8 @@ jobs:
       - run: npm ci
       - name: Refresh F1 championship standings
         run: npm run refresh:f1-standings
+      - name: Refresh F2 and F3 championship standings
+        run: npm run refresh:f2f3-standings
       - run: npm run build
 
       - uses: actions/upload-pages-artifact@v3

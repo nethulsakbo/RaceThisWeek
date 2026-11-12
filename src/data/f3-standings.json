@@ -1,0 +1,263 @@
+{
+  "seriesId": "f3",
+  "season": 2026,
+  "updatedAt": "2026-11-12T06:14:29.497Z",
+  "drivers": [
+    {
+      "position": 1,
+      "driver": "U. Ugochukwu",
+      "team": "—",
+      "points": 159
+    },
+    {
+      "position": 2,
+      "driver": "F. Slater",
+      "team": "—",
+      "points": 145
+    },
+    {
+      "position": 3,
+      "driver": "T. Taponen",
+      "team": "—",
+      "points": 109
+    },
+    {
+      "position": 4,
+      "driver": "T. Kato",
+      "team": "—",
+      "points": 105
+    },
+    {
+      "position": 5,
+      "driver": "T. Naël",
+      "team": "—",
+      "points": 88
+    },
+    {
+      "position": 6,
+      "driver": "P. Clerot",
+      "team": "—",
+      "points": 88
+    },
+    {
+      "position": 7,
+      "driver": "E. Rivera",
+      "team": "—",
+      "points": 87
+    },
+    {
+      "position": 8,
+      "driver": "B. Badoer",
+      "team": "—",
+      "points": 71
+    },
+    {
+      "position": 9,
+      "driver": "H. Yamakoshi",
+      "team": "—",
+      "points": 71
+    },
+    {
+      "position": 10,
+      "driver": "N. Stromsted",
+      "team": "—",
+      "points": 65
+    },
+    {
+      "position": 11,
+      "driver": "B. Del Pino",
+      "team": "—",
+      "points": 57
+    },
+    {
+      "position": 12,
+      "driver": "M. Gladysz",
+      "team": "—",
+      "points": 54
+    },
+    {
+      "position": 13,
+      "driver": "M. Colnaghi",
+      "team": "—",
+      "points": 54
+    },
+    {
+      "position": 14,
+      "driver": "J. Nakamura",
+      "team": "—",
+      "points": 53
+    },
+    {
+      "position": 15,
+      "driver": "A. Giusti",
+      "team": "—",
+      "points": 45
+    },
+    {
+      "position": 16,
+      "driver": "E. Deligny",
+      "team": "—",
+      "points": 40
+    },
+    {
+      "position": 17,
+      "driver": "J. Wharton",
+      "team": "—",
+      "points": 39
+    },
+    {
+      "position": 18,
+      "driver": "Y. David",
+      "team": "—",
+      "points": 35
+    },
+    {
+      "position": 19,
+      "driver": "N. Lacorte",
+      "team": "—",
+      "points": 33
+    },
+    {
+      "position": 20,
+      "driver": "K. Le",
+      "team": "—",
+      "points": 30
+    },
+    {
+      "position": 21,
+      "driver": "L. Sharp",
+      "team": "—",
+      "points": 21
+    },
+    {
+      "position": 22,
+      "driver": "G. Xie",
+      "team": "—",
+      "points": 20
+    },
+    {
+      "position": 23,
+      "driver": "A. Powell",
+      "team": "—",
+      "points": 14
+    },
+    {
+      "position": 24,
+      "driver": "M. De Palo",
+      "team": "—",
+      "points": 7
+    },
+    {
+      "position": 25,
+      "driver": "B. Benavides",
+      "team": "—",
+      "points": 6
+    },
+    {
+      "position": 26,
+      "driver": "C. Ho",
+      "team": "—",
+      "points": 2
+    },
+    {
+      "position": 27,
+      "driver": "F. Mclaughlin",
+      "team": "—",
+      "points": 2
+    },
+    {
+      "position": 28,
+      "driver": "F. Barrichello",
+      "team": "—",
+      "points": 2
+    },
+    {
+      "position": 29,
+      "driver": "J. Garfias",
+      "team": "—",
+      "points": 1
+    },
+    {
+      "position": 30,
+      "driver": "N. Bhirombhakdi",
+      "team": "—",
+      "points": 0
+    },
+    {
+      "position": 31,
+      "driver": "R. Escotto",
+      "team": "—",
+      "points": 0
+    },
+    {
+      "position": 32,
+      "driver": "P. Heuzenroeder",
+      "team": "—",
+      "points": 0
+    },
+    {
+      "position": 33,
+      "driver": "W. Shin",
+      "team": "—",
+      "points": 0
+    },
+    {
+      "position": 35,
+      "driver": "S. Hanna",
+      "team": "—",
+      "points": 0
+    }
+  ],
+  "teams": [
+    {
+      "position": 1,
+      "team": "Campos Racing",
+      "points": 334
+    },
+    {
+      "position": 2,
+      "team": "TRIDENT",
+      "points": 217
+    },
+    {
+      "position": 3,
+      "team": "MP Motorsport",
+      "points": 208
+    },
+    {
+      "position": 4,
+      "team": "ART Grand Prix",
+      "points": 189
+    },
+    {
+      "position": 5,
+      "team": "Van Amersfoort Racing",
+      "points": 168
+    },
+    {
+      "position": 6,
+      "team": "Rodin Motorsport",
+      "points": 161
+    },
+    {
+      "position": 7,
+      "team": "PREMA Racing",
+      "points": 75
+    },
+    {
+      "position": 8,
+      "team": "Hitech",
+      "points": 55
+    },
+    {
+      "position": 9,
+      "team": "DAMS Lucas Oil",
+      "points": 53
+    },
+    {
+      "position": 10,
+      "team": "AIX Racing",
+      "points": 43
+    }
+  ]
+}

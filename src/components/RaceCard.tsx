@@ -170,6 +170,19 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
 
           {expanded && (
             <div className="space-y-1.5 text-xs">
+              {event.sessions.length === 0 && (
+                <p className="text-zinc-500 dark:text-zinc-400">
+                  Session times to be announced.{" "}
+                  <a
+                    href={event.officialScheduleUrl ?? series.officialSite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-zinc-700 dark:hover:text-zinc-200"
+                  >
+                    Official schedule
+                  </a>
+                </p>
+              )}
               {event.sessions.map((session) => {
                 const isLive = isSessionLive(session, now);
                 const isFinished =

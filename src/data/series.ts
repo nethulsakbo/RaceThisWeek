@@ -1,7 +1,11 @@
 import { MotorsportSeriesId, SeriesMeta, SeriesStandings } from "@/types/motorsport";
 import f1StandingsData from "./f1-standings.json";
+import f2StandingsData from "./f2-standings.json";
+import f3StandingsData from "./f3-standings.json";
 
 const f1Standings: SeriesStandings = { ...f1StandingsData, seriesId: "f1" };
+const f2Standings: SeriesStandings = { ...f2StandingsData, seriesId: "f2" };
+const f3Standings: SeriesStandings = { ...f3StandingsData, seriesId: "f3" };
 
 export const MOTORSPORT_SERIES: Record<MotorsportSeriesId, SeriesMeta> = {
   f1: {
@@ -15,6 +19,30 @@ export const MOTORSPORT_SERIES: Record<MotorsportSeriesId, SeriesMeta> = {
     badgeText: "text-red-500",
     officialSite: "https://www.formula1.com",
     broadcast: "ESPN, Sky Sports F1, F1 TV Pro",
+  },
+  f2: {
+    id: "f2",
+    name: "FIA Formula 2",
+    shortName: "F2",
+    abbreviation: "F2",
+    category: "Open Wheel",
+    color: "#00AEEF",
+    badgeBg: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    badgeText: "text-sky-500",
+    officialSite: "https://www.fiaformula2.com",
+    broadcast: "F1 TV, ESPN",
+  },
+  f3: {
+    id: "f3",
+    name: "FIA Formula 3",
+    shortName: "F3",
+    abbreviation: "F3",
+    category: "Open Wheel",
+    color: "#00529B",
+    badgeBg: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    badgeText: "text-blue-500",
+    officialSite: "https://www.fiaformula3.com",
+    broadcast: "F1 TV, ESPN",
   },
   motogp: {
     id: "motogp",
@@ -104,6 +132,8 @@ export const MOTORSPORT_SERIES: Record<MotorsportSeriesId, SeriesMeta> = {
 
 export const STANDINGS_DATA: Record<MotorsportSeriesId, SeriesStandings> = {
   f1: f1Standings,
+  f2: f2Standings,
+  f3: f3Standings,
   motogp: {
     seriesId: "motogp",
     season: 2026,

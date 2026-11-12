@@ -220,6 +220,8 @@
     // --- SINGLE SOURCE MOTORSPORT DATA ---
     const SERIES_META = {
       f1: { id: "f1", name: "Formula 1", shortName: "F1", abbreviation: "F1", color: "#E10600", badgeBg: "bg-red-500/10 text-red-600 border-red-500/20", broadcast: "ESPN, Sky Sports F1, F1 TV Pro" },
+      f2: { id: "f2", name: "FIA Formula 2", shortName: "F2", abbreviation: "F2", color: "#00AEEF", badgeBg: "bg-sky-500/10 text-sky-600 border-sky-500/20", broadcast: "F1 TV, ESPN" },
+      f3: { id: "f3", name: "FIA Formula 3", shortName: "F3", abbreviation: "F3", color: "#00529B", badgeBg: "bg-blue-500/10 text-blue-600 border-blue-500/20", broadcast: "F1 TV, ESPN" },
       motogp: { id: "motogp", name: "MotoGP", shortName: "MotoGP", abbreviation: "GP", color: "#E00400", badgeBg: "bg-orange-500/10 text-orange-600 border-orange-500/20", broadcast: "TNT Sports, VideoPass, DAZN" },
       nascar: { id: "nascar", name: "NASCAR Cup", shortName: "NASCAR", abbreviation: "NASCAR", color: "#007AC2", badgeBg: "bg-blue-500/10 text-blue-600 border-blue-500/20", broadcast: "NBC Sports, FOX, USA Network" },
       indycar: { id: "indycar", name: "NTT IndyCar", shortName: "IndyCar", abbreviation: "INDY", color: "#002F6C", badgeBg: "bg-sky-500/10 text-sky-600 border-sky-500/20", broadcast: "NBC, Peacock, Sky Sports F1" },
@@ -438,6 +440,34 @@
         ]
       },
       {
+        id: "f2-qatar",
+        seriesId: "f2",
+        round: 13,
+        totalRounds: 14,
+        name: "Formula 2 Lusail Round",
+        circuit: "Lusail International Circuit",
+        location: "Lusail, Qatar",
+        startDate: "2026-11-27T00:00:00Z",
+        endDate: "2026-11-29T23:59:00Z",
+        officialScheduleUrl: "https://www.fiaformula2.com/en/racing/2026/lusail",
+        status: "upcoming",
+        sessions: []
+      },
+      {
+        id: "f2-abu-dhabi",
+        seriesId: "f2",
+        round: 14,
+        totalRounds: 14,
+        name: "Formula 2 Yas Marina Round",
+        circuit: "Yas Marina Circuit",
+        location: "Abu Dhabi, UAE",
+        startDate: "2026-12-04T00:00:00Z",
+        endDate: "2026-12-06T23:59:00Z",
+        officialScheduleUrl: "https://www.fiaformula2.com/en/racing/2026/yas-marina",
+        status: "upcoming",
+        sessions: []
+      },
+      {
         id: "f1-abu-dhabi",
         seriesId: "f1",
         round: 24,
@@ -491,6 +521,32 @@
           { pos: 2, team: "Scuderia Ferrari", wins: 5, pts: 551 },
           { pos: 3, team: "Red Bull Racing", wins: 8, pts: 544 },
           { pos: 4, team: "Mercedes-AMG Petronas F1", wins: 3, pts: 382 }
+        ]
+      },
+      f2: {
+        title: "FIA Formula 2 Championship",
+        color: "#00AEEF",
+        updatedAt: "2026-11-12T06:14:28.901Z",
+        source: "https://www.fiaformula2.com/en/standings/2026/drivers",
+        drivers: [
+          { pos: 1, driver: "R. Câmara", team: "—", wins: null, pts: 207 },
+          { pos: 2, driver: "N. Tsolov", team: "—", wins: null, pts: 200 },
+          { pos: 3, driver: "A. Dunne", team: "—", wins: null, pts: 189 },
+          { pos: 4, driver: "G. Mini", team: "—", wins: null, pts: 163 },
+          { pos: 5, driver: "D. Beganovic", team: "—", wins: null, pts: 137 }
+        ]
+      },
+      f3: {
+        title: "FIA Formula 3 Championship",
+        color: "#00529B",
+        updatedAt: "2026-11-12T06:14:29.497Z",
+        source: "https://www.fiaformula3.com/en/standings/2026/drivers",
+        drivers: [
+          { pos: 1, driver: "U. Ugochukwu", team: "—", wins: null, pts: 159 },
+          { pos: 2, driver: "F. Slater", team: "—", wins: null, pts: 145 },
+          { pos: 3, driver: "T. Taponen", team: "—", wins: null, pts: 109 },
+          { pos: 4, driver: "T. Kato", team: "—", wins: null, pts: 105 },
+          { pos: 5, driver: "T. Naël", team: "—", wins: null, pts: 88 }
         ]
       },
       motogp: {
@@ -593,6 +649,52 @@
       }
     };
 
+    async function refreshPublishedStandings() {
+      for (const id of ["f2", "f3"]) {
+        try {
+          const url = new URL(`public/${id}-standings.json`, window.location.href);
+          url.searchParams.set("refresh", Date.now().toString());
+          const response = await fetch(url, { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error(`Standings refresh failed (${response.status})`);
+          }
+
+          const latest = await response.json();
+          if (
+            latest?.seriesId !== id ||
+            typeof latest.updatedAt !== "string" ||
+            !Array.isArray(latest.drivers) ||
+            !latest.drivers.every(
+              (driver) =>
+                Number.isInteger(driver.position) &&
+                typeof driver.driver === "string" &&
+                typeof driver.points === "number"
+            )
+          ) {
+            throw new Error("Standings refresh returned invalid data");
+          }
+
+          STANDINGS[id] = {
+            ...STANDINGS[id],
+            updatedAt: latest.updatedAt,
+            refreshError: null,
+            drivers: latest.drivers.map((driver) => ({
+              pos: driver.position,
+              driver: driver.driver,
+              team: driver.team,
+              pts: driver.points,
+            })),
+          };
+        } catch (error) {
+          STANDINGS[id].refreshError =
+            error instanceof Error ? error.message : "Unknown refresh error";
+          console.error(`${id.toUpperCase()} standings refresh failed`, error);
+        }
+      }
+
+      if (currentView === "standings") renderStandings();
+    }
+
     // State Variables
     let currentView = 'this-week';
     let selectedSeries = 'all';
@@ -650,7 +752,6 @@
           </button>
         `;
       });
-
       container.innerHTML = html;
     }
 
@@ -801,6 +902,10 @@
           `;
         });
 
+        if (ev.sessions.length === 0 && ev.officialScheduleUrl) {
+          sessionsHtml = `<p class="text-xs text-[var(--muted-foreground)]">Session times to be announced. <a href="${ev.officialScheduleUrl}" target="_blank" rel="noreferrer" class="underline">Official schedule</a></p>`;
+        }
+
         html += `
           <div class="bg-[var(--card)] rounded-xl border border-[var(--border)] shadow-sm hover:border-[var(--foreground)]/40 transition-all overflow-hidden flex flex-col justify-between">
             <div class="h-1 w-full" style="background-color: ${s.color};"></div>
@@ -869,11 +974,11 @@
               <td class="py-2.5 font-medium text-[var(--foreground)]">
                 <div class="flex items-center space-x-1.5">
                   <span>${d.driver}</span>
-                  <span class="text-[10px] text-[var(--muted-foreground)] font-mono px-1 rounded bg-[var(--background)]">${d.nat}</span>
+                  ${d.nat ? `<span class="text-[10px] text-[var(--muted-foreground)] font-mono px-1 rounded bg-[var(--background)]">${d.nat}</span>` : ''}
                 </div>
               </td>
               <td class="py-2.5 text-[var(--muted-foreground)]">${d.team}</td>
-              <td class="py-2.5 text-center font-mono text-[var(--muted-foreground)]">${d.wins}</td>
+              <td class="py-2.5 text-center font-mono text-[var(--muted-foreground)]">${d.wins ?? '—'}</td>
               <td class="py-2.5 text-right pr-3 font-mono font-bold text-[var(--foreground)]">${d.pts}</td>
             </tr>
           `;
@@ -886,7 +991,13 @@
                 <span class="w-3 h-3 rounded-full" style="background-color: ${st.color};"></span>
                 <h3 class="font-bold text-sm text-[var(--foreground)]">${st.title}</h3>
               </div>
-              <span class="text-[10px] text-[var(--muted-foreground)]">2026 Season</span>
+              <div class="text-right">
+                <span class="text-[10px] text-[var(--muted-foreground)]">
+                  ${st.updatedAt ? `Updated ${new Date(st.updatedAt).toLocaleString()}` : '2026 Season'}
+                </span>
+                ${st.source ? `<div><a href="${st.source}" target="_blank" rel="noreferrer" class="text-[10px] underline text-[var(--muted-foreground)]">Official standings</a></div>` : ''}
+                ${st.refreshError ? `<div class="text-[10px] text-red-500">Refresh failed: ${st.refreshError}</div>` : ''}
+              </div>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left">
@@ -970,6 +1081,8 @@
     updateWeekLabel();
     renderSeriesPills();
     renderEvents();
+    refreshPublishedStandings();
+    window.setInterval(refreshPublishedStandings, 15 * 60 * 1000);
   </script>
 </body>
 </html>

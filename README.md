@@ -6,6 +6,8 @@ A high-performance, minimalist single-page web application displaying all major 
 
 - **All Major Motorsport Series Supported**:
   - **Formula 1** (F1)
+  - **FIA Formula 2** (F2)
+  - **FIA Formula 3** (F3)
   - **MotoGP** (Grand Prix & Sprint)
   - **NASCAR Cup Series**
   - **NTT IndyCar Series**
@@ -55,7 +57,7 @@ npm run lint
 ```
 
 ### Option 2: Standalone Static Distribution
-Double-click `index.html` in your browser or serve it with any static web server:
+Serve `index.html` with any static web server to enable F2/F3 standings auto-refresh. Opening the file directly shows the bundled standings snapshot but browser security prevents fetching updates:
 ```bash
 python -m http.server 3000
 # or simply open index.html directly in your browser
@@ -85,7 +87,7 @@ This project uses Next.js Static Export (`output: 'export'`) deployed automatica
 3. **Automatic Deployment**:
    - The included workflow in `.github/workflows/deploy.yml` will automatically build the project with `npm ci && npm run build` and publish the generated `./out` directory to `https://<your-username>.github.io/RaceThisWeek/`.
    - If the first deployment failed because no Pages site was found, enable Pages as described above, then rerun the workflow.
-   - The workflow also runs every 15 minutes to refresh Formula 1 driver and constructor standings from the [Jolpica F1 API](https://github.com/jolpica/jolpica-f1). This is a scheduled refresh, not live race timing; Jolpica updates standings after completed sessions. Other series' standings remain manually maintained.
+   - The workflow also runs every 15 minutes to refresh Formula 1 standings from the [Jolpica F1 API](https://github.com/jolpica/jolpica-f1) and Formula 2/3 driver and team standings from their [official F2](https://www.fiaformula2.com/en/standings) and [official F3](https://www.fiaformula3.com/en/standings) pages. These are published championship standings, not live lap timing; updates appear after the championships publish results.
    - Jolpica F1 data is available for non-commercial use under CC BY-NC-SA 4.0; see its [terms](https://github.com/jolpica/jolpica-f1/blob/main/TERMS.md).
 
 *(Note: For project pages such as `https://username.github.io/RaceThisWeek/`, the workflow and `next.config.mjs` use the repository name automatically so the build publishes to the correct sub-path.)*
@@ -96,6 +98,7 @@ This project uses Next.js Static Export (`output: 'export'`) deployed automatica
 
 - `src/types/motorsport.ts` - TypeScript interfaces for events, series, sessions, results, and standings.
 - `src/data/series.ts` - Single source of truth for series metadata, broadcast channels, and championship standings.
+- `scripts/refresh-f2f3-standings.mjs` - Refreshes F2/F3 driver and team standings from official championship pages.
 - `src/data/calendar.ts` - Racing calendar with sessions, circuits, and classification results.
 - `src/hooks/useNow.ts` - Ticking clock hook for live updates every 30 seconds.
 - `src/lib/dateUtils.ts` - Date calculations, timezone formatting, and week boundaries.

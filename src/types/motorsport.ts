@@ -1,5 +1,7 @@
 export type MotorsportSeriesId = 
   | 'f1' 
+  | 'f2'
+  | 'f3'
   | 'motogp' 
   | 'nascar' 
   | 'indycar' 
@@ -66,6 +68,7 @@ export interface RaceEvent {
   location: string;
   country: string;
   countryCode: string; // ISO 2-letter for flags
+  officialScheduleUrl?: string;
   startDate: string; // ISO string
   endDate: string; // ISO string
   laps?: number;
