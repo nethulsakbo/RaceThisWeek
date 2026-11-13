@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MapPin,
   Tv,
@@ -51,9 +51,13 @@ function buildGcalUrl(event: RaceEvent, session: SessionItem, broadcast: string)
 }
 
 export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
-  const [expanded, setExpanded] = useState<boolean>(true);
+  const [expanded, setExpanded] = useState<boolean>(false);
   const [showUtc, setShowUtc] = useState<boolean>(false);
   const series = MOTORSPORT_SERIES[event.seriesId];
+
+  useEffect(() => {
+    setExpanded(window.matchMedia("(min-width: 768px)").matches);
+  }, []);
 
   const liveSession = event.sessions.find((s) => isSessionLive(s, now));
   const nextSession = event.sessions.find(
@@ -85,7 +89,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
       {/* Top Banner Accent Strip */}
       <div className="h-1 w-full" style={{ backgroundColor: series.color }} />
 
-      <div className="p-5 flex-1 flex flex-col justify-between">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
         <div>
           {/* Header: Series Badge & Round */}
           <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -151,7 +155,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
               <button
                 type="button"
                 onClick={() => setShowUtc(!showUtc)}
-                className="flex items-center space-x-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-700"
+                className="flex min-h-11 items-center space-x-1 px-2 text-[10px] font-medium rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-700"
                 title="Toggle Local / UTC time"
               >
                 <Globe className="w-2.5 h-2.5" />
@@ -161,7 +165,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
             <button
               onClick={() => setExpanded(!expanded)}
               aria-label={expanded ? "Collapse schedule" : "Expand schedule"}
-              className="text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 flex items-center space-x-0.5"
+              className="min-h-11 px-2 text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 flex items-center space-x-0.5"
             >
               <span>{expanded ? "Hide" : "Show"}</span>
               {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -228,7 +232,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
                           type="button"
                           onClick={() => onOpenResults(event, session)}
                           title="View classification"
-                          className="px-2 py-1 rounded bg-zinc-200/80 dark:bg-zinc-700 text-[11px] font-medium text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-600 flex items-center space-x-1 transition-colors"
+                          className="min-h-11 px-2 rounded bg-zinc-200/80 dark:bg-zinc-700 text-[11px] font-medium text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-600 flex items-center space-x-1 transition-colors"
                         >
                           <Award className="w-3 h-3 text-amber-500" />
                           <span>Results</span>
@@ -241,7 +245,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
                           target="_blank"
                           rel="noopener noreferrer"
                           title="Add this session to Google Calendar"
-                          className="p-1 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors"
+                          className="min-w-11 min-h-11 flex items-center justify-center rounded text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors"
                         >
                           <ExternalLink className="w-3 h-3" />
                         </a>
@@ -256,9 +260,9 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
 
         {/* Footer: TV Broadcast & Overall Actions */}
         <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div className="flex items-center space-x-1.5 text-zinc-600 dark:text-zinc-400">
+          <div className="flex min-w-0 items-center space-x-1.5 text-zinc-600 dark:text-zinc-400">
             <Tv className="w-3.5 h-3.5 text-zinc-500" />
-            <span className="truncate max-w-[200px]" title={series.broadcast}>
+            <span className="truncate max-w-[55vw] sm:max-w-[200px]" title={series.broadcast}>
               {series.broadcast}
             </span>
           </div>
@@ -267,7 +271,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
             <button
               type="button"
               onClick={() => onOpenResults(event, completedSessions[completedSessions.length - 1])}
-              className="text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center space-x-1"
+              className="min-h-11 text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center space-x-1"
             >
               <Award className="w-3 h-3" />
               <span>Latest Results</span>

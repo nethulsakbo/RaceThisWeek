@@ -48,6 +48,11 @@
     ::-webkit-scrollbar-thumb:hover { background: rgba(140, 140, 140, 0.45); }
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    :focus-visible { outline: 2px solid #71717a; outline-offset: 2px; }
+    .dark :focus-visible { outline-color: #a1a1aa; }
+    @media (max-width: 767px) {
+      .compact-sticky-controls { position: sticky; top: 4rem; z-index: 30; margin: 0 -1rem; padding: .75rem 1rem; background: color-mix(in srgb, var(--background) 95%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    }
   </style>
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] antialiased min-h-screen">
@@ -92,46 +97,49 @@
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
     <!-- VIEW SELECTION & SEARCH BAR -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div role="tablist" aria-label="View selection" class="flex bg-[var(--card)] p-1 rounded-xl border border-[var(--border)] max-w-fit">
-        <button role="tab" aria-selected="true" onclick="setView('this-week')" id="tab-this-week" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-[var(--foreground)] text-[var(--background)] shadow-sm">
-          This Week <span id="thisWeekBadge" class="ml-1.5 px-1.5 py-0.2 rounded-full text-xs font-bold bg-red-500 text-white">3</span>
+    <div id="compactControls" class="compact-sticky-controls space-y-2.5 md:space-y-3">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-4">
+      <div role="tablist" aria-label="View selection" class="flex w-full md:w-auto overflow-x-auto scrollbar-none bg-[var(--card)] p-1 rounded-xl border border-[var(--border)]">
+        <button role="tab" aria-selected="true" onclick="setView('this-week')" id="tab-this-week" class="tab-btn min-h-11 shrink-0 px-3 md:px-4 py-1.5 rounded-lg text-xs font-medium transition-all bg-[var(--foreground)] text-[var(--background)] shadow-sm">
+          <span class="md:hidden">Week</span><span class="hidden md:inline">This Week</span> <span id="thisWeekBadge" class="ml-1.5 px-1.5 py-0.2 rounded-full text-xs font-bold bg-red-500 text-white">3</span>
         </button>
-        <button role="tab" aria-selected="false" onclick="setView('upcoming')" id="tab-upcoming" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all">
-          Upcoming Calendar
+        <button role="tab" aria-selected="false" onclick="setView('upcoming')" id="tab-upcoming" class="tab-btn min-h-11 shrink-0 px-3 md:px-4 py-1.5 rounded-lg text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all">
+          <span class="md:hidden">Upcoming</span><span class="hidden md:inline">Upcoming Calendar</span>
         </button>
-        <button role="tab" aria-selected="false" onclick="setView('past')" id="tab-past" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all">
-          Recent Results
+        <button role="tab" aria-selected="false" onclick="setView('past')" id="tab-past" class="tab-btn min-h-11 shrink-0 px-3 md:px-4 py-1.5 rounded-lg text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all">
+          <span class="md:hidden">Results</span><span class="hidden md:inline">Recent Results</span>
         </button>
-        <button role="tab" aria-selected="false" onclick="setView('standings')" id="tab-standings" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all">
-          Championship Standings
+        <button role="tab" aria-selected="false" onclick="setView('standings')" id="tab-standings" class="tab-btn min-h-11 shrink-0 px-3 md:px-4 py-1.5 rounded-lg text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all">
+          <span class="md:hidden">Standings</span><span class="hidden md:inline">Championship Standings</span>
         </button>
       </div>
 
       <!-- Search Input -->
-      <div id="searchContainer" class="relative max-w-xs w-full">
+      <div id="searchContainer" class="relative order-first md:order-none md:max-w-xs w-full">
         <label for="searchInput" class="sr-only">Search races, tracks, drivers</label>
         <input
           id="searchInput"
-          type="text"
+          type="search"
+          autocomplete="off"
           oninput="handleSearch(this.value)"
           placeholder="Search races, tracks, drivers..."
-          class="w-full pl-3 pr-3 py-1.5 text-xs rounded-xl bg-[var(--card)] border border-[var(--border)] focus:outline-none focus:ring-1 focus:ring-[var(--foreground)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]"
+          class="w-full min-h-11 pl-3 pr-11 py-2 text-base md:text-sm rounded-xl bg-[var(--card)] border border-[var(--border)] focus:outline-none focus:ring-1 focus:ring-[var(--foreground)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]"
         />
+        <button id="clearSearchButton" type="button" onclick="clearSearch()" aria-label="Clear search" class="hidden absolute right-1 top-1/2 -translate-y-1/2 min-w-10 min-h-10 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)]">✕</button>
       </div>
     </div>
 
     <!-- SERIES FILTER PILLS (Hidden in standings view) -->
-    <div id="seriesFilterRow" class="space-y-3">
+    <div id="seriesFilterRow" class="space-y-2.5 md:space-y-3">
       <div role="group" aria-label="Filter by series" class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none" id="seriesButtons">
         <!-- Rendered by JS -->
       </div>
 
       <!-- WEEK NAVIGATOR -->
-      <div id="weekNavRow" class="flex flex-wrap items-center justify-between gap-3 bg-[var(--card)] p-3 rounded-xl border border-[var(--border)]">
+      <div id="weekNavRow" class="flex flex-wrap items-center justify-between gap-2 md:gap-3 bg-[var(--card)] p-2.5 md:p-3 rounded-xl border border-[var(--border)]">
         <div class="flex items-center space-x-2 text-xs">
           <span class="text-[var(--muted-foreground)] font-semibold uppercase tracking-wider">Showing:</span>
           <span id="currentWeekLabel" class="font-bold text-[var(--foreground)]">This Week</span>
@@ -140,21 +148,23 @@
           </span>
         </div>
         <div class="flex items-center space-x-1.5">
-          <button onclick="jumpToCurrentWeek()" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[var(--background)] border border-[var(--border)] hover:bg-[var(--card)] text-[var(--foreground)]">
+          <button onclick="jumpToCurrentWeek()" class="min-h-11 px-2.5 text-xs font-medium rounded-lg bg-[var(--background)] border border-[var(--border)] hover:bg-[var(--card)] text-[var(--foreground)]">
             Today
           </button>
-          <button onclick="changeWeek(-1)" aria-label="Previous week" class="px-2.5 py-1 text-xs rounded-lg bg-[var(--background)] border border-[var(--border)] hover:bg-[var(--card)] text-[var(--foreground)] font-bold">
+          <button onclick="changeWeek(-1)" aria-label="Previous week" class="min-h-11 px-2.5 text-xs rounded-lg bg-[var(--background)] border border-[var(--border)] hover:bg-[var(--card)] text-[var(--foreground)] font-bold">
             ‹ Prev
           </button>
-          <button onclick="changeWeek(1)" aria-label="Next week" class="px-2.5 py-1 text-xs rounded-lg bg-[var(--background)] border border-[var(--border)] hover:bg-[var(--card)] text-[var(--foreground)] font-bold">
+          <button onclick="changeWeek(1)" aria-label="Next week" class="min-h-11 px-2.5 text-xs rounded-lg bg-[var(--background)] border border-[var(--border)] hover:bg-[var(--card)] text-[var(--foreground)] font-bold">
             Next ›
           </button>
         </div>
       </div>
     </div>
+    </div>
 
     <!-- MAIN GRID CARDS CONTENT -->
-    <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <p id="searchFeedback" class="hidden -mb-2 text-xs text-[var(--muted-foreground)]" aria-live="polite"></p>
+    <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       <!-- Events injected by JS -->
     </div>
 
@@ -164,37 +174,39 @@
     </div>
 
     <!-- EMPTY STATE -->
-    <div id="emptyState" class="hidden text-center py-16 bg-[var(--card)] rounded-2xl border border-[var(--border)]">
+    <div id="emptyState" class="hidden text-center py-12 sm:py-16 px-4 bg-[var(--card)] rounded-2xl border border-[var(--border)]">
       <div class="text-3xl mb-2">🏁</div>
-      <h3 class="text-base font-semibold text-[var(--foreground)]">No races scheduled for this selection</h3>
-      <p class="text-xs text-[var(--muted-foreground)] mt-1">Try selecting "All Series" or toggle to "Upcoming Calendar".</p>
+      <h3 id="emptyTitle" class="text-base font-semibold text-[var(--foreground)]">No races scheduled for this selection</h3>
+      <p id="emptyMessage" class="text-xs text-[var(--muted-foreground)] mt-1"></p>
+      <div id="emptyActions" class="flex flex-wrap justify-center gap-2 mt-3"></div>
     </div>
 
   </main>
 
   <!-- CLASSIFICATION / LIVE TIMING RESULTS MODAL -->
   <div id="resultsModal" role="dialog" aria-modal="true" aria-labelledby="modalSessionTitle" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onclick="closeResultsModal()">
-    <div class="w-full max-w-2xl bg-[var(--card)] rounded-2xl shadow-2xl border border-[var(--border)] overflow-hidden flex flex-col max-h-[85vh]" onclick="event.stopPropagation()">
+    <div class="w-full max-w-2xl bg-[var(--card)] rounded-2xl shadow-2xl border border-[var(--border)] overflow-hidden flex flex-col max-h-[94dvh] sm:max-h-[90vh]" onclick="event.stopPropagation()">
       <!-- Modal Header -->
-      <div class="p-5 border-b border-[var(--border)] flex items-start justify-between bg-[var(--background)]">
-        <div>
+      <div class="sticky top-0 z-20 p-3 sm:p-5 border-b border-[var(--border)] flex items-start justify-between gap-2 bg-[var(--background)]">
+        <div class="min-w-0">
           <div class="flex items-center space-x-2 mb-1">
             <span id="modalSeriesBadge" class="text-xs font-bold px-2 py-0.5 rounded text-white bg-red-600">F1</span>
             <span id="modalRoundText" class="text-xs text-[var(--muted-foreground)]">Round 21 • Interlagos</span>
           </div>
           <h3 id="modalSessionTitle" class="text-lg font-bold text-[var(--foreground)]">Race Classification</h3>
-          <p id="modalEventTitle" class="text-xs text-[var(--muted-foreground)]">Formula 1 Lenovo Grande Prêmio de São Paulo 2026</p>
+          <p id="modalEventTitle" class="text-xs text-[var(--muted-foreground)] truncate">Formula 1 Lenovo Grande Prêmio de São Paulo 2026</p>
         </div>
-        <button id="modalCloseBtn" onclick="closeResultsModal()" aria-label="Close modal" class="text-lg font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] p-1 rounded">✕</button>
+        <button id="modalCloseBtn" onclick="closeResultsModal()" aria-label="Close modal" class="min-w-11 min-h-11 shrink-0 text-lg font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] rounded">✕</button>
       </div>
 
       <!-- Modal Body / Table -->
-      <div class="p-5 overflow-y-auto flex-1">
-        <table class="w-full text-left text-xs">
+      <div class="p-3 sm:p-5 overflow-y-auto flex-1">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[560px] text-left text-xs">
           <thead>
-            <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)] font-semibold uppercase tracking-wider">
-              <th class="pb-2 pl-2 w-10">Pos</th>
-              <th class="pb-2">Driver</th>
+            <tr class="sticky top-0 z-10 border-b border-[var(--border)] text-[var(--muted-foreground)] font-semibold uppercase tracking-wider bg-[var(--card)]">
+              <th class="sticky left-0 z-20 pb-2 pl-2 w-12 bg-[var(--card)]">Pos</th>
+              <th class="sticky left-12 z-20 pb-2 bg-[var(--card)]">Driver</th>
               <th class="pb-2">Team / Car</th>
               <th class="pb-2 text-right">Time / Gap</th>
               <th class="pb-2 text-right pr-2">Pts</th>
@@ -204,12 +216,13 @@
             <!-- Classification rows injected here -->
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Modal Footer -->
       <div class="p-4 border-t border-[var(--border)] bg-[var(--background)] flex items-center justify-between text-xs text-[var(--muted-foreground)]">
         <span>Official Timing &amp; Scoring Feed</span>
-        <button onclick="closeResultsModal()" class="px-4 py-1.5 rounded-lg bg-[var(--foreground)] text-[var(--background)] font-medium">
+        <button onclick="closeResultsModal()" class="min-h-11 px-4 rounded-lg bg-[var(--foreground)] text-[var(--background)] font-medium">
           Close
         </button>
       </div>
@@ -693,14 +706,50 @@
       }
 
       if (currentView === "standings") renderStandings();
+      else if (currentSearch) renderEvents();
     }
 
     // State Variables
     let currentView = 'this-week';
     let selectedSeries = 'all';
-    let currentSearch = '';
+    let currentSearch = new URLSearchParams(window.location.search).get('q') || '';
     let currentWeekOffset = 0;
     let standingsSubTab = 'drivers';
+    let searchUrlTimer;
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function syncSearchToUrl() {
+      window.clearTimeout(searchUrlTimer);
+      searchUrlTimer = window.setTimeout(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (currentSearch.trim()) params.set('q', currentSearch.trim());
+        else params.delete('q');
+        const query = params.toString();
+        window.history.replaceState(window.history.state, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+      }, 300);
+    }
+
+    function clearSearch() {
+      currentSearch = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchButton').classList.add('hidden');
+      syncSearchToUrl();
+      if (currentView === 'standings') renderStandings();
+      else renderEvents();
+    }
+
+    function clearAllFilters() {
+      selectedSeries = 'all';
+      currentWeekOffset = 0;
+      renderSeriesPills();
+      updateWeekLabel();
+      clearSearch();
+    }
 
     function toggleTheme() {
       const root = document.documentElement;
@@ -738,7 +787,7 @@
     function renderSeriesPills() {
       const container = document.getElementById('seriesButtons');
       let html = `
-        <button onclick="setSeries('all')" aria-pressed="${selectedSeries === 'all'}" class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${selectedSeries === 'all' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-[var(--border)]'}">
+        <button onclick="setSeries('all')" aria-pressed="${selectedSeries === 'all'}" class="min-h-11 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${selectedSeries === 'all' ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-[var(--border)]'}">
           All Series
         </button>
       `;
@@ -746,7 +795,7 @@
       Object.values(SERIES_META).forEach(s => {
         const isSel = selectedSeries === s.id;
         html += `
-          <button onclick="setSeries('${s.id}')" aria-pressed="${isSel}" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isSel ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-[var(--border)]'}">
+          <button onclick="setSeries('${s.id}')" aria-pressed="${isSel}" class="min-h-11 flex items-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${isSel ? 'bg-[var(--foreground)] text-[var(--background)] shadow-sm' : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-[var(--border)]'}">
             <span class="w-2 h-2 rounded-full inline-block" style="background-color: ${s.color};"></span>
             <span>${s.shortName}</span>
           </button>
@@ -779,19 +828,18 @@
       const eventsGrid = document.getElementById('eventsGrid');
       const standingsContainer = document.getElementById('standingsContainer');
       const emptyState = document.getElementById('emptyState');
-      const searchContainer = document.getElementById('searchContainer');
+      const searchFeedback = document.getElementById('searchFeedback');
 
       if (view === 'standings') {
         seriesRow.classList.add('hidden');
         eventsGrid.classList.add('hidden');
         emptyState.classList.add('hidden');
-        searchContainer.classList.add('hidden');
+        searchFeedback.classList.add('hidden');
         standingsContainer.classList.remove('hidden');
         renderStandings();
       } else {
         seriesRow.classList.remove('hidden');
         eventsGrid.classList.remove('hidden');
-        searchContainer.classList.remove('hidden');
         standingsContainer.classList.add('hidden');
         document.getElementById('weekNavRow').style.display = view === 'this-week' ? 'flex' : 'none';
         renderEvents();
@@ -799,8 +847,11 @@
     }
 
     function handleSearch(val) {
-      currentSearch = val.toLowerCase().trim();
-      renderEvents();
+      currentSearch = val.trim();
+      document.getElementById('clearSearchButton').classList.toggle('hidden', !currentSearch);
+      syncSearchToUrl();
+      if (currentView === 'standings') renderStandings();
+      else renderEvents();
     }
 
     function changeWeek(delta) {
@@ -813,6 +864,14 @@
       currentWeekOffset = 0;
       updateWeekLabel();
       renderEvents();
+    }
+
+    function toggleSessions(eventId, button) {
+      const sessions = document.getElementById(`sessions-${eventId}`);
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', String(!isExpanded));
+      button.textContent = isExpanded ? 'Show' : 'Hide';
+      sessions.classList.toggle('hidden', isExpanded);
     }
 
     function updateWeekLabel() {
@@ -833,18 +892,31 @@
     function renderEvents() {
       const container = document.getElementById('eventsGrid');
       const emptyState = document.getElementById('emptyState');
+      const emptyTitle = document.getElementById('emptyTitle');
+      const emptyMessage = document.getElementById('emptyMessage');
+      const emptyActions = document.getElementById('emptyActions');
+      const searchFeedback = document.getElementById('searchFeedback');
       const { start: weekStart, end: weekEnd } = getWeekRange(currentWeekOffset);
+      const query = currentSearch.trim().toLocaleLowerCase();
 
       let filtered = EVENTS_DATABASE.filter(ev => {
         if (selectedSeries !== 'all' && ev.seriesId !== selectedSeries) return false;
 
-        if (currentSearch) {
-          const matchBasic = ev.name.toLowerCase().includes(currentSearch) ||
-                             ev.circuit.toLowerCase().includes(currentSearch) ||
-                             ev.location.toLowerCase().includes(currentSearch) ||
-                             SERIES_META[ev.seriesId].name.toLowerCase().includes(currentSearch);
-          const matchDriver = ev.sessions.some(s => s.results?.some(r => r.driver.toLowerCase().includes(currentSearch) || r.team.toLowerCase().includes(currentSearch)));
-          if (!matchBasic && !matchDriver) return false;
+        if (query) {
+          const basicFields = [
+            ev.name, ev.officialName, ev.circuit, ev.location, ev.country,
+            SERIES_META[ev.seriesId].name
+          ].filter(Boolean);
+          const matchBasic = basicFields.some(value => value.toLocaleLowerCase().includes(query)) ||
+                             ev.sessions.some(session => session.name.toLocaleLowerCase().includes(query));
+          const matchSessionResult = ev.sessions.some(s => s.results?.some(r =>
+            r.driver.toLocaleLowerCase().includes(query) || r.team.toLocaleLowerCase().includes(query)
+          ));
+          const matchStandings = (STANDINGS[ev.seriesId]?.drivers ?? []).some(d =>
+            d.driver.toLocaleLowerCase().includes(query) || d.team.toLocaleLowerCase().includes(query)
+          );
+          if (!matchBasic && !matchSessionResult && !matchStandings) return false;
+          return true;
         }
 
         const evStart = new Date(ev.startDate);
@@ -860,8 +932,29 @@
         return true;
       });
 
+      searchFeedback.classList.toggle('hidden', !query);
+      if (query) {
+        searchFeedback.innerHTML = `${filtered.length} ${filtered.length === 1 ? 'match' : 'matches'} for ‘${escapeHtml(currentSearch.trim())}’ — searching all weeks`;
+      }
+
       if (filtered.length === 0) {
         container.innerHTML = '';
+        if (query) {
+          emptyTitle.textContent = `No results for ‘${currentSearch.trim()}’`;
+          emptyMessage.textContent = '';
+          emptyActions.innerHTML = `
+            <button onclick="clearSearch()" class="min-h-11 px-3 text-sm underline font-medium">Clear search</button>
+            ${selectedSeries !== 'all' ? '<button onclick="clearAllFilters()" class="min-h-11 px-3 text-sm underline font-medium">Clear all filters</button>' : ''}
+          `;
+        } else {
+          emptyTitle.textContent = 'No races scheduled for this selection';
+          emptyMessage.textContent = 'Try switching the series filter, Upcoming Calendar, or another week.';
+          emptyActions.innerHTML = `
+            ${selectedSeries !== 'all' ? '<button onclick="clearAllFilters()" class="min-h-11 px-3 text-sm underline font-medium">Clear all filters</button>' : ''}
+            <button onclick="setView('upcoming')" class="min-h-11 px-3 text-sm underline font-medium">Upcoming Calendar</button>
+            <button onclick="changeWeek(1)" class="min-h-11 px-3 text-sm underline font-medium">Next Week</button>
+          `;
+        }
         emptyState.classList.remove('hidden');
         return;
       }
@@ -889,11 +982,11 @@
               <div class="flex items-center space-x-2 shrink-0">
                 <span class="font-mono text-[var(--muted-foreground)] text-[11px]">${formatTime(sess.rawTime)}</span>
                 ${hasResults ? `
-                  <button onclick="openResultsModal('${ev.id}', '${sess.id}')" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 font-semibold border border-amber-500/20 hover:bg-amber-500/20 transition-colors">
+                  <button onclick="openResultsModal('${ev.id}', '${sess.id}')" class="min-h-11 px-2 rounded bg-amber-500/10 text-amber-600 font-semibold border border-amber-500/20 hover:bg-amber-500/20 transition-colors">
                     Results
                   </button>
                 ` : `
-                  <a href="${gcalUrl}" target="_blank" rel="noopener noreferrer" class="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)]" title="Add to Google Calendar">
+                  <a href="${gcalUrl}" target="_blank" rel="noopener noreferrer" class="min-w-11 min-h-11 flex items-center justify-center rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)]" title="Add to Google Calendar">
                     📅
                   </a>
                 `}
@@ -910,7 +1003,7 @@
           <div class="bg-[var(--card)] rounded-xl border border-[var(--border)] shadow-sm hover:border-[var(--foreground)]/40 transition-all overflow-hidden flex flex-col justify-between">
             <div class="h-1 w-full" style="background-color: ${s.color};"></div>
             
-            <div class="p-5 flex-1 flex flex-col justify-between">
+            <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center space-x-2">
@@ -937,17 +1030,22 @@
 
               <!-- Sessions List -->
               <div class="mt-4 pt-3 border-t border-[var(--border)]">
-                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] mb-2">
-                  Session Schedule
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    Session Schedule
+                  </span>
+                  <button type="button" aria-expanded="false" onclick="toggleSessions('${ev.id}', this)" class="md:hidden min-h-11 px-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                    Show
+                  </button>
                 </div>
-                <div class="space-y-1.5">
+                <div id="sessions-${ev.id}" class="hidden md:block space-y-1.5">
                   ${sessionsHtml}
                 </div>
               </div>
 
               <!-- Footer -->
               <div class="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between text-xs text-[var(--muted-foreground)]">
-                <span class="truncate max-w-[200px]">📺 ${s.broadcast}</span>
+                <span class="min-w-0 truncate max-w-[55vw] sm:max-w-[200px]">📺 ${s.broadcast}</span>
                 <span class="font-medium text-[var(--foreground)]">🏁 2026</span>
               </div>
             </div>
@@ -960,13 +1058,23 @@
 
     function renderStandings() {
       const container = document.getElementById('standingsContainer');
+      const query = currentSearch.trim().toLocaleLowerCase();
+      const totalMatches = Object.values(STANDINGS).reduce((count, series) =>
+        count + series.drivers.filter(d =>
+          d.driver.toLocaleLowerCase().includes(query) || d.team.toLocaleLowerCase().includes(query)
+        ).length, 0
+      );
       let html = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        ${query ? `<p class="mb-3 text-xs text-[var(--muted-foreground)]" aria-live="polite">${totalMatches} ${totalMatches === 1 ? 'match' : 'matches'} for ‘${escapeHtml(currentSearch.trim())}’ — standings</p>` : ''}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
       `;
 
       Object.entries(STANDINGS).forEach(([key, st]) => {
         let rowsHtml = '';
-        st.drivers.forEach(d => {
+        const matchingDrivers = st.drivers.filter(d =>
+          !query || d.driver.toLocaleLowerCase().includes(query) || d.team.toLocaleLowerCase().includes(query)
+        );
+        matchingDrivers.forEach(d => {
           const medal = d.pos === 1 ? '🥇' : d.pos === 2 ? '🥈' : d.pos === 3 ? '🥉' : `<span class="text-[var(--muted-foreground)] font-mono pl-1">${d.pos}</span>`;
           rowsHtml += `
             <tr class="border-b border-[var(--border)] text-xs hover:bg-[var(--background)]">
@@ -1020,6 +1128,14 @@
       });
 
       html += `</div>`;
+      if (query && totalMatches === 0) {
+        html = `
+          <div class="text-center py-12 bg-[var(--card)] rounded-2xl border border-[var(--border)]">
+            <p class="font-semibold">No results for ‘${escapeHtml(currentSearch.trim())}’</p>
+            <button onclick="clearSearch()" class="mt-2 min-h-11 px-3 text-sm underline font-medium">Clear search</button>
+          </div>
+        `;
+      }
       container.innerHTML = html;
     }
 
@@ -1041,8 +1157,8 @@
         const medal = r.position === 1 ? '🥇' : r.position === 2 ? '🥈' : r.position === 3 ? '🥉' : `<span class="text-[var(--muted-foreground)]">${r.position}</span>`;
         rows += `
           <tr class="border-b border-[var(--border)] hover:bg-[var(--background)] transition-colors">
-            <td class="py-2 pl-2 font-bold">${medal}</td>
-            <td class="py-2 font-sans font-medium text-[var(--foreground)]">
+            <td class="sticky left-0 z-[1] py-2 pl-2 font-bold bg-[var(--card)]">${medal}</td>
+            <td class="sticky left-12 z-[1] py-2 font-sans font-medium text-[var(--foreground)] bg-[var(--card)]">
               ${r.driver} ${r.status ? `<span class="ml-1 px-1 py-0.2 text-[10px] rounded bg-red-500/10 text-red-500 font-semibold">${r.status}</span>` : ''}
             </td>
             <td class="py-2 font-sans text-[var(--muted-foreground)]">${r.team}</td>
@@ -1078,6 +1194,8 @@
     } catch(e) {}
 
     // Initialize App
+    document.getElementById('searchInput').value = currentSearch;
+    document.getElementById('clearSearchButton').classList.toggle('hidden', !currentSearch);
     updateWeekLabel();
     renderSeriesPills();
     renderEvents();

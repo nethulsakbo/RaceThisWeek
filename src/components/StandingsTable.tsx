@@ -7,6 +7,8 @@ import { MOTORSPORT_SERIES } from "@/data/series";
 
 interface StandingsTableProps {
   standings: Record<MotorsportSeriesId, SeriesStandings>;
+  searchQuery: string;
+  onClearSearch: () => void;
 }
 
 function isDriverStanding(value: unknown): value is SeriesStandings["drivers"][number] {
@@ -50,7 +52,7 @@ function isSeriesStandings(
   );
 }
 
-export function StandingsTable({ standings }: StandingsTableProps) {
+export function StandingsTable({ standings, searchQuery, onClearSearch }: StandingsTableProps) {
   const seriesIds = Object.keys(standings) as MotorsportSeriesId[];
   const [selectedSeries, setSelectedSeries] = useState<MotorsportSeriesId>("f1");
   const [viewType, setViewType] = useState<"drivers" | "teams">("drivers");
@@ -66,6 +68,17 @@ export function StandingsTable({ standings }: StandingsTableProps) {
     liveStandings[selectedSeries as LiveStandingsSeriesId] ?? standings[selectedSeries];
   const isLiveSeries = (LIVE_STANDINGS_SERIES as readonly string[]).includes(selectedSeries);
   const refreshError = refreshErrors[selectedSeries as LiveStandingsSeriesId];
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+  const filteredDrivers = (activeStandings?.drivers ?? []).filter(
+    (driver) =>
+      !normalizedQuery ||
+      driver.driver.toLocaleLowerCase().includes(normalizedQuery) ||
+      driver.team.toLocaleLowerCase().includes(normalizedQuery)
+  );
+  const filteredTeams = (activeStandings?.teams ?? []).filter(
+    (team) => !normalizedQuery || team.team.toLocaleLowerCase().includes(normalizedQuery)
+  );
+  const visibleRows = viewType === "drivers" ? filteredDrivers.length : filteredTeams.length;
 
   useEffect(() => {
     let cancelled = false;
@@ -115,6 +128,13 @@ export function StandingsTable({ standings }: StandingsTableProps) {
 
   return (
     <div className="space-y-6">
+      {normalizedQuery && (
+        <p className="text-xs text-zinc-600 dark:text-zinc-400" aria-live="polite">
+          {visibleRows} {visibleRows === 1 ? "match" : "matches"} for{" "}
+          <span className="font-medium text-zinc-800 dark:text-zinc-200">‘{searchQuery.trim()}’</span>
+          {" "}— standings
+        </p>
+      )}
       {/* Series Selector Pills */}
       <div className="flex items-center space-x-1.5 overflow-x-auto pb-2 scrollbar-none">
         {seriesIds.map((id) => {
@@ -131,7 +151,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
                   setViewType("drivers");
                 }
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+              className={`min-h-11 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 ${
                 isSelected
                   ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm"
                   : "bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200/60 dark:border-zinc-800/80"
@@ -196,7 +216,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
             <div className="flex bg-zinc-200/80 dark:bg-zinc-800 p-1 rounded-lg text-xs font-medium">
               <button
                 onClick={() => setViewType("drivers")}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-md transition-all ${
+                className={`min-h-11 flex items-center space-x-1.5 px-3 rounded-md transition-all ${
                   viewType === "drivers"
                     ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-sm"
                     : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -207,7 +227,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
               </button>
               <button
                 onClick={() => setViewType("teams")}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-md transition-all ${
+                className={`min-h-11 flex items-center space-x-1.5 px-3 rounded-md transition-all ${
                   viewType === "teams"
                     ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-sm"
                     : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
@@ -222,8 +242,22 @@ export function StandingsTable({ standings }: StandingsTableProps) {
 
         {/* Standings Table */}
         <div className="overflow-x-auto">
+          {normalizedQuery && visibleRows === 0 && (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                No results for ‘{searchQuery.trim()}’
+              </p>
+              <button
+                type="button"
+                onClick={onClearSearch}
+                className="mt-2 min-h-11 px-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 underline underline-offset-2"
+              >
+                Clear search
+              </button>
+            </div>
+          )}
           {viewType === "drivers" ? (
-            <table className="w-full text-left text-sm">
+            <table className={`w-full text-left text-sm ${normalizedQuery && visibleRows === 0 ? "hidden" : ""}`}>
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider bg-zinc-50/50 dark:bg-zinc-900/60">
                   <th className="py-3 pl-6 w-16">Pos</th>
@@ -235,7 +269,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 font-sans text-xs">
-                {activeStandings?.drivers.map((d) => {
+                {filteredDrivers.map((d) => {
                   return (
                     <tr
                       key={d.position}
@@ -284,7 +318,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
               </tbody>
             </table>
           ) : (
-            <table className="w-full text-left text-sm">
+            <table className={`w-full text-left text-sm ${normalizedQuery && visibleRows === 0 ? "hidden" : ""}`}>
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider bg-zinc-50/50 dark:bg-zinc-900/60">
                   <th className="py-3 pl-6 w-16">Pos</th>
@@ -294,7 +328,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 font-sans text-xs">
-                {activeStandings?.teams?.map((t) => (
+                {filteredTeams.map((t) => (
                   <tr
                     key={t.position}
                     className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors"

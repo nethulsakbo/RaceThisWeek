@@ -23,7 +23,7 @@ export function SeriesFilter({
         <button
           onClick={() => onSelectSeries("all")}
           aria-pressed={selectedSeries === "all"}
-          className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+          className={`min-h-11 px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 ${
             selectedSeries === "all"
               ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm"
               : "bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200/60 dark:border-zinc-800/80"
@@ -50,7 +50,7 @@ export function SeriesFilter({
               key={series.id}
               onClick={() => onSelectSeries(series.id)}
               aria-pressed={isSelected}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+              className={`min-h-11 px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 ${
                 isSelected
                   ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-sm"
                   : "bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200/60 dark:border-zinc-800/80"

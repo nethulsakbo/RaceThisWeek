@@ -82,7 +82,7 @@ export function Header({ activeLiveCount }: HeaderProps) {
           {activeLiveCount > 0 ? (
             <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 animate-pulse font-medium">
               <Radio className="w-3.5 h-3.5" />
-              <span>{activeLiveCount} Session Live</span>
+              <span>{activeLiveCount} {activeLiveCount === 1 ? "Session" : "Sessions"} Live</span>
             </div>
           ) : null}
 
@@ -94,7 +94,7 @@ export function Header({ activeLiveCount }: HeaderProps) {
           <button
             onClick={toggleDarkMode}
             aria-label="Toggle theme"
-            className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-colors"
+            className="min-w-11 min-h-11 flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-colors"
           >
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
