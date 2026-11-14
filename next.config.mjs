@@ -1,12 +1,10 @@
 /** @type {import('next').NextConfig} */
-const basePath = process.env.NEXT_BASE_PATH ?? "";
-
 const nextConfig = {
   output: "export",
   reactStrictMode: true,
   images: { unoptimized: true },
-  basePath,
-  assetPrefix: basePath || undefined,
+  basePath: process.env.NEXT_BASE_PATH ?? "",
+  assetPrefix: process.env.NEXT_BASE_PATH || undefined,
   trailingSlash: true,
 };
 
