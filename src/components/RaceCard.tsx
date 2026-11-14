@@ -52,7 +52,7 @@ function buildGcalUrl(event: RaceEvent, session: SessionItem, broadcast: string)
 
 export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [showUtc, setShowUtc] = useState<boolean>(false);
+  const [timeMode, setTimeMode] = useState<"track" | "viewer" | "utc">("track");
   const series = MOTORSPORT_SERIES[event.seriesId];
 
   useEffect(() => {
@@ -63,15 +63,13 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
   const nextSession = event.sessions.find(
     (s) => !s.completed && new Date(s.startTime).getTime() > now.getTime()
   );
-  const completedSessions = event.sessions.filter(
-    (s) => s.completed || s.results?.length || new Date(s.endTime || s.startTime).getTime() < now.getTime()
-  );
+  const sessionsWithResults = event.sessions.filter((session) => session.results?.length);
 
   const countdown = nextSession ? getCountdown(nextSession.startTime, now) : null;
 
   const formatSessionTime = (isoString: string) => {
     const d = new Date(isoString);
-    if (showUtc) {
+    if (timeMode === "utc") {
       return (
         d.toLocaleTimeString("en-GB", {
           timeZone: "UTC",
@@ -81,7 +79,14 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
         }) + " UTC"
       );
     }
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+    return d.toLocaleTimeString([], {
+      ...(timeMode === "track" && event.venueTimeZone
+        ? { timeZone: event.venueTimeZone }
+        : {}),
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   return (
@@ -141,7 +146,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
 
           <div className="flex items-center space-x-1.5 text-xs text-zinc-500 dark:text-zinc-400 mt-1">
             <Calendar className="w-3.5 h-3.5 shrink-0" />
-            <span>{formatEventDateRange(event.startDate, event.endDate)}</span>
+            <span>{formatEventDateRange(event.startDate, event.endDate, event.venueTimeZone)}</span>
           </div>
         </div>
 
@@ -154,12 +159,18 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
               </span>
               <button
                 type="button"
-                onClick={() => setShowUtc(!showUtc)}
+                onClick={() =>
+                  setTimeMode((current) =>
+                    current === "track" ? "viewer" : current === "viewer" ? "utc" : "track"
+                  )
+                }
                 className="flex min-h-11 items-center space-x-1 px-2 text-[10px] font-medium rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border border-zinc-200 dark:border-zinc-700"
-                title="Toggle Local / UTC time"
+                title="Cycle track, your local, and UTC times"
               >
                 <Globe className="w-2.5 h-2.5" />
-                <span>{showUtc ? "UTC" : "Local"}</span>
+                <span>
+                  {timeMode === "track" ? "Track" : timeMode === "viewer" ? "Your time" : "UTC"}
+                </span>
               </button>
             </div>
             <button
@@ -176,7 +187,7 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
             <div className="space-y-1.5 text-xs">
               {event.sessions.length === 0 && (
                 <p className="text-zinc-500 dark:text-zinc-400">
-                  Session times to be announced.{" "}
+                  Session schedule isn&apos;t synced here.{" "}
                   <a
                     href={event.officialScheduleUrl ?? series.officialSite}
                     target="_blank"
@@ -220,7 +231,10 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
                     <div className="flex items-center space-x-2 shrink-0">
                       <div className="text-right">
                         <div className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">
-                          {formatDayAndDate(session.startTime)}
+                          {formatDayAndDate(
+                            session.startTime,
+                            timeMode === "track" ? event.venueTimeZone : timeMode === "utc" ? "UTC" : undefined
+                          )}
                         </div>
                         <div className="font-mono font-medium text-xs text-zinc-900 dark:text-zinc-100">
                           {formatSessionTime(session.startTime)}
@@ -267,10 +281,10 @@ export function RaceCard({ event, now, onOpenResults }: RaceCardProps) {
             </span>
           </div>
 
-          {completedSessions.length > 0 && !liveSession && (
+          {sessionsWithResults.length > 0 && !liveSession && (
             <button
               type="button"
-              onClick={() => onOpenResults(event, completedSessions[completedSessions.length - 1])}
+              onClick={() => onOpenResults(event, sessionsWithResults[sessionsWithResults.length - 1])}
               className="min-h-11 text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center space-x-1"
             >
               <Award className="w-3 h-3" />

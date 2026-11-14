@@ -43,20 +43,40 @@ export function getEventCurrentStatus(event: RaceEvent, now: Date = new Date()):
   return 'upcoming';
 }
 
-export function formatEventDateRange(startDateStr: string, endDateStr: string): string {
+export function formatEventDateRange(
+  startDateStr: string,
+  endDateStr: string,
+  timeZone?: string
+): string {
   const start = new Date(startDateStr);
   const end = new Date(endDateStr);
+  const dateOptions: Intl.DateTimeFormatOptions = { timeZone };
+  const startParts = new Intl.DateTimeFormat("en-US", {
+    ...dateOptions,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).formatToParts(start);
+  const endParts = new Intl.DateTimeFormat("en-US", {
+    ...dateOptions,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).formatToParts(end);
+  const startMonth = startParts.find((part) => part.type === "month")?.value;
+  const endMonth = endParts.find((part) => part.type === "month")?.value;
+  const startDay = startParts.find((part) => part.type === "day")?.value;
+  const endDay = endParts.find((part) => part.type === "day")?.value;
+  const startYear = startParts.find((part) => part.type === "year")?.value;
+  const endYear = endParts.find((part) => part.type === "year")?.value;
 
-  const startMonth = start.toLocaleDateString('en-US', { month: 'short' });
-  const endMonth = end.toLocaleDateString('en-US', { month: 'short' });
-  const startDay = start.getDate();
-  const endDay = end.getDate();
-  const year = end.getFullYear();
-
-  if (startMonth === endMonth) {
-    return `${startMonth} ${startDay}–${endDay}, ${year}`;
+  if (startMonth === endMonth && startYear === endYear) {
+    return `${startMonth} ${startDay}–${endDay}, ${endYear}`;
   }
-  return `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${year}`;
+  if (startYear === endYear) {
+    return `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${endYear}`;
+  }
+  return `${startMonth} ${startDay}, ${startYear} – ${endMonth} ${endDay}, ${endYear}`;
 }
 
 export function formatTimeInUserTimezone(isoString: string): string {
@@ -64,9 +84,14 @@ export function formatTimeInUserTimezone(isoString: string): string {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 }
 
-export function formatDayAndDate(isoString: string): string {
+export function formatDayAndDate(isoString: string, timeZone?: string): string {
   const date = new Date(isoString);
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone,
+  });
 }
 
 export function isEventCurrentlyLive(

@@ -209,6 +209,21 @@ export function StandingsTable({ standings, searchQuery, onClearSearch }: Standi
                     : `${activeSeries.shortName} standings source: official championship`}
                 </a>
               )}
+              {!isLiveSeries &&
+                activeStandings?.drivers.length === 0 &&
+                activeStandings.teams?.length === 0 && (
+                    <p className="text-[11px] text-amber-700 dark:text-amber-400">
+                      Standings are not synced here yet.{" "}
+                      <a
+                        href={activeSeries.officialSite}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline underline-offset-2"
+                      >
+                        Check the official site
+                      </a>
+                    </p>
+                )}
             </div>
           </div>
 
@@ -256,7 +271,11 @@ export function StandingsTable({ standings, searchQuery, onClearSearch }: Standi
               </button>
             </div>
           )}
-          {viewType === "drivers" ? (
+          {visibleRows === 0 && !normalizedQuery ? (
+            <div className="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
+              No standings are synced for this series yet.
+            </div>
+          ) : viewType === "drivers" ? (
             <table className={`w-full text-left text-sm ${normalizedQuery && visibleRows === 0 ? "hidden" : ""}`}>
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider bg-zinc-50/50 dark:bg-zinc-900/60">

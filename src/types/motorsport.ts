@@ -68,6 +68,7 @@ export interface RaceEvent {
   location: string;
   country: string;
   countryCode: string; // ISO 2-letter for flags
+  venueTimeZone?: string;
   officialScheduleUrl?: string;
   startDate: string; // ISO string
   endDate: string; // ISO string

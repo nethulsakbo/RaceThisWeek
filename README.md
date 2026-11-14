@@ -85,19 +85,29 @@ This project uses Next.js Static Export (`output: 'export'`) deployed automatica
    - This must be configured before the first deployment. The workflow's default `GITHUB_TOKEN` cannot create a missing Pages site.
 
 3. **Automatic Deployment**:
-   - The included workflow in `.github/workflows/deploy.yml` will automatically build the project with `npm ci && npm run build` and publish the generated `./out` directory to `https://<your-username>.github.io/RaceThisWeek/`.
+   - The included workflow in `.github/workflows/deploy.yml` will build the project with `npm ci && npm run build` and publish the generated `./out` directory to GitHub Pages.
    - If the first deployment failed because no Pages site was found, enable Pages as described above, then rerun the workflow.
    - The workflow also runs every 15 minutes to refresh Formula 1 standings from the [Jolpica F1 API](https://github.com/jolpica/jolpica-f1) and Formula 2/3 driver and team standings from their [official F2](https://www.fiaformula2.com/en/standings) and [official F3](https://www.fiaformula3.com/en/standings) pages. These are published championship standings, not live lap timing; updates appear after the championships publish results.
    - Jolpica F1 data is available for non-commercial use under CC BY-NC-SA 4.0; see its [terms](https://github.com/jolpica/jolpica-f1/blob/main/TERMS.md).
 
-*(Note: For project pages such as `https://username.github.io/RaceThisWeek/`, the workflow and `next.config.mjs` use the repository name automatically so the build publishes to the correct sub-path.)*
+### Use a custom domain
+
+The site is a static export, so you can keep GitHub Pages as the host and point your domain to it:
+
+1. Choose a domain, such as `racing.example.com`. In your domain registrar's DNS settings, add a `CNAME` record for `racing` pointing to `nethulsakbo.github.io`. For an apex domain (`example.com`), use the A/AAAA records in [GitHub's DNS guide](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-an-apex-domain).
+2. In the repository, open **Settings → Pages**, keep **Source** set to **GitHub Actions**, and enter your domain under **Custom domain**. Complete the DNS check and enable **Enforce HTTPS** when it becomes available.
+3. Add a file named `public/CNAME` containing only your chosen hostname (for example, `racing.example.com`), then commit and push it. This preserves the custom domain in each static deployment.
+4. The workflow reads the Pages base path from `actions/configure-pages`. Project pages use the repository sub-path; a custom domain is served from `/`, so the same build config supports both without editing `next.config.mjs`.
+5. Wait for DNS propagation and verify both the custom URL and HTTPS certificate.
+
+For official race dates and times, cards use the venue timezone by default; the time button cycles through track time, your browser's time, and UTC. Session classifications and non-F1/F2/F3 standings are only shown when synced/published data is available; check the linked series site when this app has no result.
 
 ---
 
 ## File Structure
 
 - `src/types/motorsport.ts` - TypeScript interfaces for events, series, sessions, results, and standings.
-- `src/data/series.ts` - Single source of truth for series metadata, broadcast channels, and championship standings.
+- `src/data/series.ts` - Single source of truth for series metadata, broadcast channels, and synced championship standings.
 - `scripts/refresh-f2f3-standings.mjs` - Refreshes F2/F3 driver and team standings from official championship pages.
 - `src/data/calendar.ts` - Racing calendar with sessions, circuits, and classification results.
 - `src/hooks/useNow.ts` - Ticking clock hook for live updates every 30 seconds.

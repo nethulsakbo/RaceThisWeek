@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configure GitHub Pages
+        id: pages
         uses: actions/configure-pages@v5
         with:
           static_site_generator: next
@@ -37,7 +38,10 @@ jobs:
         run: npm run refresh:f1-standings
       - name: Refresh F2 and F3 championship standings
         run: npm run refresh:f2f3-standings
-      - run: npm run build
+      - name: Build static site
+        run: npm run build
+        env:
+          NEXT_BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

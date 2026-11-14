@@ -158,8 +158,8 @@ export function LiveResultsModal({ event, session, onClose }: LiveResultsModalPr
           ) : (
             <div className="text-center py-12 text-zinc-400">
               <Timer className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm font-medium">No official timing data published yet for this session.</p>
-              <p className="text-xs mt-1">Live timing will populate once cars take to the track.</p>
+              <p className="text-sm font-medium">No classification has been published for this session.</p>
+              <p className="text-xs mt-1">Check the championship&apos;s official results for the latest update.</p>
             </div>
           )}
         </div>
@@ -168,14 +168,26 @@ export function LiveResultsModal({ event, session, onClose }: LiveResultsModalPr
         <div className="p-3 sm:p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 flex items-center justify-between gap-2 text-xs text-zinc-500">
           <div className="min-w-0 flex items-center space-x-2 truncate">
             <Trophy className="w-3.5 h-3.5 text-amber-500" />
-            <span>Official Timing &amp; Scoring Feed</span>
+            <span>Published classification</span>
           </div>
-          <button
-            onClick={onClose}
-            className="min-h-11 px-4 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium hover:opacity-90 transition-opacity"
-          >
-            Close
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {event.officialScheduleUrl && (
+              <a
+                href={event.officialScheduleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-h-11 px-2 flex items-center underline underline-offset-2 hover:text-zinc-700 dark:hover:text-zinc-300"
+              >
+                Official event page
+              </a>
+            )}
+            <button
+              onClick={onClose}
+              className="min-h-11 px-4 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium hover:opacity-90 transition-opacity"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

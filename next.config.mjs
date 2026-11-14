@@ -1,13 +1,12 @@
 /** @type {import('next').NextConfig} */
-const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
-const isGitHubPagesProject = Boolean(repoName);
+const basePath = process.env.NEXT_BASE_PATH ?? "";
 
 const nextConfig = {
   output: "export",
   reactStrictMode: true,
   images: { unoptimized: true },
-  basePath: isGitHubPagesProject ? `/${repoName}` : "",
-  assetPrefix: isGitHubPagesProject ? `/${repoName}` : "",
+  basePath,
+  assetPrefix: basePath || undefined,
   trailingSlash: true,
 };
 
